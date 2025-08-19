@@ -1,25 +1,29 @@
 package com.example.msFoodCourt.domain.usecase;
 
 import com.example.msFoodCourt.domain.api.IRestaurantServicePort;
+import com.example.msFoodCourt.domain.exception.*;
 import com.example.msFoodCourt.domain.model.Restaurant;
+import com.example.msFoodCourt.domain.model.User;
 import com.example.msFoodCourt.domain.spi.IRestaurantPersistencePort;
-import com.example.msFoodCourt.infrastructure.exception.BadRequestException;
-import com.example.msFoodCourt.infrastructure.exception.NotFoundException;
+import com.example.msFoodCourt.domain.spi.IUserPersistencePort;
 
 import java.util.List;
 
 public class RestaurantUseCase implements IRestaurantServicePort {
 
     private final IRestaurantPersistencePort persistencePort;
+    private final IUserPersistencePort userPersistencePort;
 
-    public RestaurantUseCase(IRestaurantPersistencePort persistencePort) {
+    public RestaurantUseCase(IRestaurantPersistencePort persistencePort, IUserPersistencePort userPersistencePort) {
         this.persistencePort = persistencePort;
+        this.userPersistencePort = userPersistencePort;
     }
 
     @Override
     public void createRestaurant(Restaurant restaurant) {
+        User user = userPersistencePort.getUserByDocument(restaurant.getDocumentOwner());
         validateRequiredFields(restaurant);
-        validateOwnerId(restaurant.getIdOwner());
+        validateOwnerDocument(user);
         validateName(restaurant.getName());
         validateNumeric(restaurant.getNit(), "NIT");
         validatePhone(restaurant.getPhone());
@@ -33,39 +37,41 @@ public class RestaurantUseCase implements IRestaurantServicePort {
     }
 
     @Override
-    public Restaurant getRestaurantById(Long id) {
-        return persistencePort.findById(id)
-                .orElseThrow(() -> new NotFoundException("Restaurant not found with ID " + id));
+    public Restaurant getRestaurantByNit(String nit) {
+        return null;
     }
 
     private void validateRequiredFields(Restaurant r) {
         if (r.getName() == null || r.getNit() == null || r.getAddress() == null ||
-                r.getPhone() == null || r.getUrlLogo() == null || r.getIdOwner() == null) {
-            throw new BadRequestException("All fields are required");
+                r.getPhone() == null || r.getUrlLogo() == null || r.getDocumentOwner() == null) {
+            throw new MissingFieldsException("All fields are required");
         }
     }
 
-    private void validateOwnerId(Long idOwner) {
-        if (!persistencePort.existsOwnerById(idOwner)) {
-            throw new NotFoundException("The owner ID does not correspond to a user with the OWNER role");
+    private void validateOwnerDocument(User user) {
+        if (user == null) {
+            throw new OwnerNotFoundException("The entered document does not exist in the Users service");
+        }
+        if (!"PROPIETARIO".equalsIgnoreCase(user.getRole())) {
+            throw new OwnerNotFoundException("The entered document does not correspond to an OWNER user");
         }
     }
 
     private void validateName(String name) {
         if (name.matches("\\d+")) {
-            throw new BadRequestException("The name cannot contain only numbers");
+            throw new InvalidNameException("The name cannot contain only numbers");
         }
     }
 
     private void validateNumeric(String value, String field) {
         if (!value.matches("\\d+")) {
-            throw new BadRequestException(field + " must be numeric");
+            throw new InvalidNitException(field + " must be numeric");
         }
     }
 
     private void validatePhone(String phone) {
         if (!phone.matches("\\+?\\d{1,13}")) {
-            throw new BadRequestException("Invalid phone format");
+            throw new InvalidPhoneException("Invalid phone format");
         }
     }
 }

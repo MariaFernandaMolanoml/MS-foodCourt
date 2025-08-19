@@ -1,7 +1,6 @@
 package com.example.msFoodCourt.domain.api;
 
 import com.example.msFoodCourt.domain.model.Restaurant;
-
 import java.util.List;
 
 public interface IRestaurantServicePort {
@@ -9,5 +8,5 @@ public interface IRestaurantServicePort {
 
     List<Restaurant> getAllRestaurants();
 
-    Restaurant getRestaurantById(Long id);
+    Restaurant getRestaurantByNit(String nit);
 }

@@ -3,6 +3,7 @@ package com.example.msFoodCourt.infrastructure.input.rest;
 import com.example.msFoodCourt.application.dto.RestaurantRequestDto;
 import com.example.msFoodCourt.application.dto.RestaurantResponseDto;
 import com.example.msFoodCourt.application.handler.IRestaurantHandler;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,9 @@ public class RestaurantRestController {
     private final IRestaurantHandler restaurantHandler;
 
     @PostMapping
-    public ResponseEntity<Void> createRestaurant(@RequestBody RestaurantRequestDto restaurantRequest) {
+    public ResponseEntity<String> createRestaurant(@Valid @RequestBody RestaurantRequestDto restaurantRequest) {
         restaurantHandler.createRestaurant(restaurantRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body("Restaurant created successfully");
     }
 
     @GetMapping
@@ -28,8 +29,8 @@ public class RestaurantRestController {
         return ResponseEntity.ok(restaurantHandler.getAllRestaurants());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<RestaurantResponseDto> getRestaurantById(@PathVariable Long id) {
-        return ResponseEntity.ok(restaurantHandler.getRestaurantById(id));
+    @GetMapping("/{nit}")
+    public ResponseEntity<RestaurantResponseDto> getRestaurantByNit(@PathVariable String nit) {
+        return ResponseEntity.ok(restaurantHandler.getRestaurantByNit(nit));
     }
 }

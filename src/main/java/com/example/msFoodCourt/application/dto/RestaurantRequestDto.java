@@ -11,22 +11,24 @@ public class RestaurantRequestDto {
     private Long id;
 
     @NotBlank(message = "First name is required")
+    @Pattern(regexp = "^(?!\\d+$).*$", message = "The name cannot contain only numbers")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "The NIT is mandatory")
     @Pattern(regexp = "\\d+", message = "NIT must be numeric")
     private String nit;
 
-    @NotBlank
+    @NotBlank(message = "Address is mandatory")
     private String address;
 
     @NotBlank
     @Pattern(regexp = "^\\+?\\d{1,13}$", message = "Phone must be numeric and max 13 digits, may include '+'")
     private String phone;
 
-    @NotBlank
+    @NotBlank(message = "The logo URL is required")
     private String urlLogo;
 
     @NotNull
-    private Long idOwner;
+    private String documentOwner;
 }
+

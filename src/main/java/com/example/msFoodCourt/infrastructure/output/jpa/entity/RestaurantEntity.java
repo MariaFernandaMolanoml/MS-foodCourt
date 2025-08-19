@@ -40,5 +40,5 @@ public class RestaurantEntity {
 
     @NotNull(message = "This field is mandatory")
     @Column(nullable = false)
-    private Long idOwner;
+    private String documentOwner;
 }

@@ -2,7 +2,6 @@ package com.example.msFoodCourt.application.handler;
 
 import com.example.msFoodCourt.application.dto.RestaurantRequestDto;
 import com.example.msFoodCourt.application.dto.RestaurantResponseDto;
-
 import java.util.List;
 
 public interface IRestaurantHandler {
@@ -11,5 +10,5 @@ public interface IRestaurantHandler {
 
     List<RestaurantResponseDto> getAllRestaurants();
 
-    RestaurantResponseDto getRestaurantById(Long id);
+    RestaurantResponseDto getRestaurantByNit(String nit);
 }

@@ -12,6 +12,5 @@ public class UserResponse {
     private String email;
     private String document;
     private String phone;
-    private String password;
     private String role;
 }
