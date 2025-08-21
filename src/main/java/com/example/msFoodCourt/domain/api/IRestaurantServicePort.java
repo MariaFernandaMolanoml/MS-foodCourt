@@ -9,4 +9,5 @@ public interface IRestaurantServicePort {
     List<Restaurant> getAllRestaurants();
 
     Restaurant getRestaurantByNit(String nit);
+
 }

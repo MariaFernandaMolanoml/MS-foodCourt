@@ -1,8 +1,11 @@
 package com.example.msFoodCourt.infrastructure.configuration;
 
+import com.example.msFoodCourt.domain.api.IDishServicePort;
 import com.example.msFoodCourt.domain.api.IRestaurantServicePort;
+import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
 import com.example.msFoodCourt.domain.spi.IRestaurantPersistencePort;
 import com.example.msFoodCourt.domain.spi.IUserPersistencePort;
+import com.example.msFoodCourt.domain.usecase.DishUseCase;
 import com.example.msFoodCourt.domain.usecase.RestaurantUseCase;
 import com.example.msFoodCourt.infrastructure.output.jpa.adapter.RestaurantJpaAdapter;
 import com.example.msFoodCourt.infrastructure.output.jpa.adapter.RestaurantUserFeignAdapter;
@@ -28,10 +31,20 @@ public class BeanConfiguration {
     @Bean
     public IUserPersistencePort userPersistencePort( UserFeignClient userFeignClient){
         return new RestaurantUserFeignAdapter(userFeignClient);
-    };
+    }
 
     @Bean
     public IRestaurantServicePort restaurantServicePort(IRestaurantPersistencePort persistencePort, IUserPersistencePort userPersistencePort) {
         return new RestaurantUseCase(persistencePort,userPersistencePort);
+    }
+    private final IDishPersistencePort dishPersistencePort;
+
+    public BeanConfiguration(IDishPersistencePort dishPersistencePort) {
+        this.dishPersistencePort = dishPersistencePort;
+    }
+
+    @Bean
+    public IDishServicePort dishServicePort() {
+        return new DishUseCase(dishPersistencePort);
     }
 }

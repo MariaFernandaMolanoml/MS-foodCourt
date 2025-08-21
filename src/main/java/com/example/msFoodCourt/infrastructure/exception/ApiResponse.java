@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ErrorResponse {
+public class ApiResponse {
     private LocalDateTime timestamp;
     private int status;
     private String error;
-    private String message;
+    private Object message;
 }
