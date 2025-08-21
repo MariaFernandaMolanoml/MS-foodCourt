@@ -3,6 +3,7 @@ package com.example.msFoodCourt.domain.usecase;
 import com.example.msFoodCourt.domain.api.IDishServicePort;
 import com.example.msFoodCourt.domain.exception.*;
 import com.example.msFoodCourt.domain.model.Dish;
+import com.example.msFoodCourt.domain.model.DishUpdate;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
 
 import java.util.List;
@@ -42,24 +43,35 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
-    public void updateDish(Dish dish) {
-        if (dish.getName() == null || dish.getName().isBlank()) {
-            throw new DishNameNotFoundException();
+    public void updateDish(DishUpdate dishUpdate) {
+        if (dishUpdate.getPrice() == null && dishUpdate.getDescription() == null) {
+            throw new UpdateDishException();
         }
-        if (dish.getDescription() == null || dish.getDescription().isBlank()) {
-            throw new DishDescriptionNotFoundException();
+
+        if (!dishPersistencePort.existById(dishUpdate.getId())) {
+            throw new DishNotFoundException("Dish not found with id: " + dishUpdate.getId());
         }
-        if (dish.getPrice() == null || dish.getPrice() <= 0) {
-            throw new DishPriceNotValidException();
+
+        Dish dish = dishPersistencePort.getDish(dishUpdate.getId());
+
+        if (dishUpdate.getPrice() != null && dishUpdate.getPrice() > 0) {
+            dish.setPrice(dishUpdate.getPrice());
         }
-        if (dish.getRestaurantId() == null) {
-            throw new DishRestaurantNotFoundException();
-        }
-        if (dish.getCategoryId() == null) {
-            throw new DishCategoryNotFoundException();
+        if (dishUpdate.getDescription() != null && !dishUpdate.getDescription().isBlank()) {
+            dish.setDescription(dishUpdate.getDescription());
         }
 
         dishPersistencePort.updateDish(dish);
+    }
+
+    @Override
+    public List<Dish> getDishesByRestaurant(Long restaurantId) {
+        return List.of();
+    }
+
+    @Override
+    public void updateDish(Dish dish) {
+        throw new UnsupportedOperationException("Use updateDish(DishUpdate) to update");
     }
 
     @Override

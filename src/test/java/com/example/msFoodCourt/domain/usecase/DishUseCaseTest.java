@@ -2,6 +2,7 @@ package com.example.msFoodCourt.domain.usecase;
 
 import com.example.msFoodCourt.domain.exception.*;
 import com.example.msFoodCourt.domain.model.Dish;
+import com.example.msFoodCourt.domain.model.DishUpdate;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
-
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,6 +37,8 @@ class DishUseCaseTest {
         dish.setCategoryId(1L);
         dish.setActive(true);
     }
+
+    // -------------------- TESTS EXISTENTES --------------------
 
     @Test
     void saveDish_ShouldCallPersistence_WhenDishIsValid() {
@@ -88,8 +90,7 @@ class DishUseCaseTest {
 
     @Test
     void updateDish_ShouldCallPersistence_WhenDishIsValid() {
-        dishUseCase.updateDish(dish);
-        verify(dishPersistencePort, times(1)).updateDish(dish);
+        assertThrows(UnsupportedOperationException.class, () -> dishUseCase.updateDish(dish));
     }
 
     @Test
@@ -97,34 +98,58 @@ class DishUseCaseTest {
         dishUseCase.deleteDish(1L);
         verify(dishPersistencePort, times(1)).deleteDish(1L);
     }
+
     @Test
-    void updateDish_ShouldThrowDishNameNotFoundException() {
-        dish.setName("");
-        assertThrows(DishNameNotFoundException.class, () -> dishUseCase.updateDish(dish));
+    void updateDish_WithValidDescriptionAndPrice_ShouldUpdate() {
+        DishUpdate update = new DishUpdate();
+        update.setId(1L);
+        update.setDescription("Nueva descripción");
+        update.setPrice(25.0);
+
+        when(dishPersistencePort.existById(1L)).thenReturn(true);
+        when(dishPersistencePort.getDish(1L)).thenReturn(dish);
+
+        dishUseCase.updateDish(update);
+
+        assertEquals("Nueva descripción", dish.getDescription());
+        assertEquals(25.0, dish.getPrice());
+        verify(dishPersistencePort).updateDish(dish);
     }
 
     @Test
-    void updateDish_ShouldThrowDishDescriptionNotFoundException() {
-        dish.setDescription("");
-        assertThrows(DishDescriptionNotFoundException.class, () -> dishUseCase.updateDish(dish));
+    void updateDish_WithOnlyPrice_ShouldUpdatePrice() {
+        DishUpdate update = new DishUpdate();
+        update.setId(1L);
+        update.setPrice(30.0);
+
+        when(dishPersistencePort.existById(1L)).thenReturn(true);
+        when(dishPersistencePort.getDish(1L)).thenReturn(dish);
+
+        dishUseCase.updateDish(update);
+
+        assertEquals(30.0, dish.getPrice());
+        assertEquals("Delicious pizza", dish.getDescription()); // la descripción se mantiene
+        verify(dishPersistencePort).updateDish(dish);
     }
 
     @Test
-    void updateDish_ShouldThrowDishPriceNotValidException() {
-        dish.setPrice(0.0);
-        assertThrows(DishPriceNotValidException.class, () -> dishUseCase.updateDish(dish));
+    void updateDish_ShouldThrowException_WhenBothFieldsNull() {
+        DishUpdate update = new DishUpdate();
+        update.setId(1L);
+
+        assertThrows(UpdateDishException.class, () -> dishUseCase.updateDish(update));
+        verify(dishPersistencePort, never()).updateDish(any());
     }
 
     @Test
-    void updateDish_ShouldThrowDishRestaurantNotFoundException() {
-        dish.setRestaurantId(null);
-        assertThrows(DishRestaurantNotFoundException.class, () -> dishUseCase.updateDish(dish));
-    }
+    void updateDish_ShouldThrowException_WhenDishNotFound() {
+        DishUpdate update = new DishUpdate();
+        update.setId(99L);
+        update.setDescription("Nueva desc");
 
-    @Test
-    void updateDish_ShouldThrowDishCategoryNotFoundException() {
-        dish.setCategoryId(null);
-        assertThrows(DishCategoryNotFoundException.class, () -> dishUseCase.updateDish(dish));
+        when(dishPersistencePort.existById(99L)).thenReturn(false);
+
+        assertThrows(DishNotFoundException.class, () -> dishUseCase.updateDish(update));
+        verify(dishPersistencePort, never()).updateDish(any());
     }
 }
-
