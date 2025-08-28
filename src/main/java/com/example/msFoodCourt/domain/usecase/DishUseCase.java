@@ -5,24 +5,37 @@ import com.example.msFoodCourt.domain.exception.*;
 import com.example.msFoodCourt.domain.model.Dish;
 import com.example.msFoodCourt.domain.model.DishUpdate;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
+import com.example.msFoodCourt.domain.spi.IRestaurantPersistencePort;
 
 import java.util.List;
 import java.util.Optional;
 
 public class DishUseCase implements IDishServicePort {
 
-    private final IDishPersistencePort dishPersistencePort;
 
-    public DishUseCase(IDishPersistencePort dishPersistencePort) {
+    private final IDishPersistencePort dishPersistencePort;
+    private final IRestaurantPersistencePort restaurantPersistencePort;
+
+    public DishUseCase(IDishPersistencePort dishPersistencePort, IRestaurantPersistencePort restaurantPersistencePort) {
         this.dishPersistencePort = dishPersistencePort;
+        this.restaurantPersistencePort = restaurantPersistencePort;
     }
 
     @Override
-    public void saveDish(Dish dish) {
+    public void saveDish(Dish dish, String documentFromToken) {
         validateDish(dish);
+
+        var restaurant = restaurantPersistencePort.findById(dish.getRestaurantId())
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found with id: " + dish.getRestaurantId()));
+
+        if (!restaurant.getDocumentOwner().equals(documentFromToken)) {
+            throw new UnauthorizedOwnerException("You are not the owner of this restaurant");
+        }
+
         if (dish.getActive() == null) {
             dish.setActive(true);
         }
+
         dishPersistencePort.saveDish(dish);
     }
 
@@ -43,7 +56,12 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
-    public void updateDish(DishUpdate dishUpdate) {
+    public List<Dish> getDishesByRestaurant(Long restaurantId) {
+        return List.of();
+    }
+
+    @Override
+    public void updateDish(DishUpdate dishUpdate, String documentFromToken) {
         if (dishUpdate.getPrice() == null && dishUpdate.getDescription() == null) {
             throw new UpdateDishException();
         }
@@ -54,6 +72,13 @@ public class DishUseCase implements IDishServicePort {
 
         Dish dish = dishPersistencePort.getDish(dishUpdate.getId());
 
+        var restaurant = restaurantPersistencePort.findById(dish.getRestaurantId())
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found with id: " + dish.getRestaurantId()));
+
+        if (!restaurant.getDocumentOwner().equals(documentFromToken)) {
+            throw new UnauthorizedOwnerException("You are not the owner of this restaurant");
+        }
+
         if (dishUpdate.getPrice() != null && dishUpdate.getPrice() > 0) {
             dish.setPrice(dishUpdate.getPrice());
         }
@@ -62,16 +87,6 @@ public class DishUseCase implements IDishServicePort {
         }
 
         dishPersistencePort.updateDish(dish);
-    }
-
-    @Override
-    public List<Dish> getDishesByRestaurant(Long restaurantId) {
-        return List.of();
-    }
-
-    @Override
-    public void updateDish(Dish dish) {
-        throw new UnsupportedOperationException("Use updateDish(DishUpdate) to update");
     }
 
     @Override

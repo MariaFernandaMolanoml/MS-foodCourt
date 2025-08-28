@@ -7,6 +7,8 @@ import com.example.msFoodCourt.infrastructure.output.jpa.adapter.client.UserFeig
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class RestaurantUserFeignAdapter implements IUserPersistencePort {

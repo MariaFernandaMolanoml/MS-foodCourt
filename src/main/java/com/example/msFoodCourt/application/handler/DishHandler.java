@@ -8,8 +8,13 @@ import com.example.msFoodCourt.application.mapper.DishResponseMapper;
 import com.example.msFoodCourt.domain.api.IDishServicePort;
 import com.example.msFoodCourt.domain.model.Dish;
 import com.example.msFoodCourt.domain.model.DishUpdate;
+import com.example.msFoodCourt.domain.utils.constant.Constants;
+import com.example.msFoodCourt.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 
@@ -20,11 +25,24 @@ public class DishHandler implements IDishHandler {
     private final IDishServicePort dishServicePort;
     private final DishRequestMapper dishRequestMapper;
     private final DishResponseMapper dishResponseMapper;
+    private final JwtUtil jwtUtil;
 
     @Override
     public void saveDish(DishRequest dishRequest) {
         Dish dish = dishRequestMapper.toDish(dishRequest);
-        dishServicePort.saveDish(dish);
+
+        var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        var request = requestAttributes.getRequest();
+        String authHeader = request.getHeader(Constants.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith(Constants.BEARER)) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+        String documentFromToken = jwtUtil.getDocument(token);
+
+        dishServicePort.saveDish(dish, documentFromToken);
     }
 
     @Override
@@ -37,12 +55,6 @@ public class DishHandler implements IDishHandler {
     public DishResponse getDish(Long id) {
         Dish dish = dishServicePort.getDish(id);
         return dishResponseMapper.toResponse(dish);
-    }
-
-    @Override
-    public void updateDish(DishRequest dishRequest) {
-        Dish dish = dishRequestMapper.toDish(dishRequest);
-        dishServicePort.updateDish(dish);
     }
 
     @Override
@@ -63,6 +75,18 @@ public class DishHandler implements IDishHandler {
         dishUpdate.setDescription(dishUpdateRequest.getDescription());
         dishUpdate.setPrice(dishUpdateRequest.getPrice());
 
-        dishServicePort.updateDish(dishUpdate);
+        var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        var request = requestAttributes.getRequest();
+        String authHeader = request.getHeader(Constants.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith(Constants.BEARER)) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+        String documentFromToken = jwtUtil.getDocument(token);
+
+        dishServicePort.updateDish(dishUpdate, documentFromToken);
     }
 }
+

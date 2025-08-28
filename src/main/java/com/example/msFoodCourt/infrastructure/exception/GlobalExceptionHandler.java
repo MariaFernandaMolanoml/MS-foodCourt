@@ -63,5 +63,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleGeneric(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
+    @ExceptionHandler(DuplicateNitException.class)
+    public ResponseEntity<ApiResponse> handleDuplicateNit(DuplicateNitException ex) {
+        ApiResponse response = new ApiResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
 }
 

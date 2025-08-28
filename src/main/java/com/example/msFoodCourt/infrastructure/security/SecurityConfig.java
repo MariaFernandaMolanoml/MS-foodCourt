@@ -23,12 +23,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/restaurant/**").permitAll()
-                        .requestMatchers("/restaurant/**").hasAuthority(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/restaurant/**").hasAuthority(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/restaurant/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/dish/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/dish/**").hasAuthority(ROLE_OWNER)
                         .requestMatchers(HttpMethod.PUT, "/dish/**").hasAuthority(ROLE_OWNER)
+                        .requestMatchers(HttpMethod.POST, "/restaurant-employee/**").hasAuthority(ROLE_OWNER)
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

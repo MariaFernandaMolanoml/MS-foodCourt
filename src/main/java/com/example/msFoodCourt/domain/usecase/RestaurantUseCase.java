@@ -9,6 +9,8 @@ import com.example.msFoodCourt.domain.spi.IUserPersistencePort;
 
 import java.util.List;
 
+import static com.example.msFoodCourt.domain.utils.constant.Constants.ROLE_OWNER;
+
 public class RestaurantUseCase implements IRestaurantServicePort {
 
     private final IRestaurantPersistencePort persistencePort;
@@ -22,11 +24,16 @@ public class RestaurantUseCase implements IRestaurantServicePort {
     @Override
     public void createRestaurant(Restaurant restaurant) {
         User user = userPersistencePort.getUserByDocument(restaurant.getDocumentOwner());
+
         validateRequiredFields(restaurant);
         validateOwnerDocument(user);
         validateName(restaurant.getName());
         validateNumeric(restaurant.getNit(), "NIT");
         validatePhone(restaurant.getPhone());
+
+        if (persistencePort.existsByNit(restaurant.getNit())) {
+            throw new DuplicateNitException("A restaurant with NIT " + restaurant.getNit() + " already exists");
+        }
 
         persistencePort.save(restaurant);
     }
@@ -52,7 +59,7 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         if (user == null) {
             throw new OwnerNotFoundException("The entered document does not exist in the Users service");
         }
-        if (!"PROPIETARIO".equalsIgnoreCase(user.getRole())) {
+        if (!ROLE_OWNER.equalsIgnoreCase(user.getRole())) {
             throw new OwnerNotFoundException("The entered document does not correspond to an OWNER user");
         }
     }

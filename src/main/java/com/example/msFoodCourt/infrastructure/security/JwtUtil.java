@@ -1,5 +1,6 @@
 package com.example.msFoodCourt.infrastructure.security;
 
+import com.example.msFoodCourt.domain.utils.constant.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -68,5 +69,9 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String getDocument(String token) {
+        return extractAllClaims(token).get(Constants.DOCUMENT, String.class);
     }
 }

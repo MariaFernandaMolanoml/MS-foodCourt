@@ -1,16 +1,21 @@
 package com.example.msFoodCourt.infrastructure.configuration;
 
 import com.example.msFoodCourt.domain.api.IDishServicePort;
+import com.example.msFoodCourt.domain.api.IRestaurantEmployeeServicePort;
 import com.example.msFoodCourt.domain.api.IRestaurantServicePort;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
+import com.example.msFoodCourt.domain.spi.IRestaurantEmployeePersistencePort;
 import com.example.msFoodCourt.domain.spi.IRestaurantPersistencePort;
 import com.example.msFoodCourt.domain.spi.IUserPersistencePort;
 import com.example.msFoodCourt.domain.usecase.DishUseCase;
+import com.example.msFoodCourt.domain.usecase.RestaurantEmployeeUseCase;
 import com.example.msFoodCourt.domain.usecase.RestaurantUseCase;
+import com.example.msFoodCourt.infrastructure.output.jpa.adapter.RestaurantEmployeeJpaAdapter;
 import com.example.msFoodCourt.infrastructure.output.jpa.adapter.RestaurantJpaAdapter;
 import com.example.msFoodCourt.infrastructure.output.jpa.adapter.RestaurantUserFeignAdapter;
 import com.example.msFoodCourt.infrastructure.output.jpa.adapter.client.UserFeignClient;
 import com.example.msFoodCourt.infrastructure.output.jpa.mapper.RestaurantEntityMapper;
+import com.example.msFoodCourt.infrastructure.output.jpa.repository.IRestaurantEmployeeRepository;
 import com.example.msFoodCourt.infrastructure.output.jpa.repository.IRestaurantRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BeanConfiguration {
+    private final IRestaurantEmployeeRepository restaurantEmployeeRepository;
 
     @Bean
     public IRestaurantPersistencePort restaurantPersistencePort(
@@ -39,12 +45,30 @@ public class BeanConfiguration {
     }
     private final IDishPersistencePort dishPersistencePort;
 
-    public BeanConfiguration(IDishPersistencePort dishPersistencePort) {
+    public BeanConfiguration(IDishPersistencePort dishPersistencePort, IRestaurantEmployeeRepository restaurantEmployeeRepository) {
         this.dishPersistencePort = dishPersistencePort;
+        this.restaurantEmployeeRepository = restaurantEmployeeRepository;
     }
 
     @Bean
-    public IDishServicePort dishServicePort() {
-        return new DishUseCase(dishPersistencePort);
+    public IRestaurantEmployeePersistencePort restaurantEmployeePersistencePort() {
+        return new RestaurantEmployeeJpaAdapter(restaurantEmployeeRepository);
+    }
+
+    @Bean
+    public IRestaurantEmployeeServicePort restaurantEmployeeServicePort(IRestaurantEmployeePersistencePort restaurantEmployeePersistencePort,
+                                                                        IRestaurantPersistencePort restaurantPersistencePort,
+                                                                        IUserPersistencePort userPersistencePort) {
+        return new RestaurantEmployeeUseCase(
+                restaurantEmployeePersistencePort,
+                restaurantPersistencePort,
+                userPersistencePort
+        );
+    }
+
+    @Bean
+    public DishUseCase dishUseCase(IDishPersistencePort dishPersistencePort,
+                                   IRestaurantPersistencePort restaurantPersistencePort) {
+        return new DishUseCase(dishPersistencePort, restaurantPersistencePort);
     }
 }
