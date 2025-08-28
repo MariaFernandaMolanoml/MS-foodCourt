@@ -62,8 +62,11 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void updateDish(DishUpdate dishUpdate, String documentFromToken) {
-        if (dishUpdate.getPrice() == null && dishUpdate.getDescription() == null) {
-            throw new UpdateDishException();
+        // Validación: debe enviar al menos price, description o active
+        if (dishUpdate.getPrice() == null
+                && dishUpdate.getDescription() == null
+                && dishUpdate.getActive() == null) {
+            throw new UpdateDishException(); // puedes personalizar el mensaje
         }
 
         if (!dishPersistencePort.existById(dishUpdate.getId())) {
@@ -73,17 +76,27 @@ public class DishUseCase implements IDishServicePort {
         Dish dish = dishPersistencePort.getDish(dishUpdate.getId());
 
         var restaurant = restaurantPersistencePort.findById(dish.getRestaurantId())
-                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found with id: " + dish.getRestaurantId()));
+                .orElseThrow(() -> new RestaurantNotFoundException(
+                        "Restaurant not found with id: " + dish.getRestaurantId()
+                ));
 
         if (!restaurant.getDocumentOwner().equals(documentFromToken)) {
             throw new UnauthorizedOwnerException("You are not the owner of this restaurant");
         }
 
-        if (dishUpdate.getPrice() != null && dishUpdate.getPrice() > 0) {
+        if (dishUpdate.getPrice() != null) {
+            if (dishUpdate.getPrice() <= 0) {
+                throw new DishPriceNotValidException();
+            }
             dish.setPrice(dishUpdate.getPrice());
         }
+
         if (dishUpdate.getDescription() != null && !dishUpdate.getDescription().isBlank()) {
             dish.setDescription(dishUpdate.getDescription());
+        }
+
+        if (dishUpdate.getActive() != null) {
+            dish.setActive(dishUpdate.getActive());
         }
 
         dishPersistencePort.updateDish(dish);

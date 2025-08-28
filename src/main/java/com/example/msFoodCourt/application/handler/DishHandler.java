@@ -11,7 +11,6 @@ import com.example.msFoodCourt.domain.model.DishUpdate;
 import com.example.msFoodCourt.domain.utils.constant.Constants;
 import com.example.msFoodCourt.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -74,6 +73,7 @@ public class DishHandler implements IDishHandler {
         dishUpdate.setId(id);
         dishUpdate.setDescription(dishUpdateRequest.getDescription());
         dishUpdate.setPrice(dishUpdateRequest.getPrice());
+        dishUpdate.setActive(dishUpdateRequest.getActive());
 
         var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         var request = requestAttributes.getRequest();

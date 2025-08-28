@@ -10,4 +10,5 @@ import lombok.Setter;
 public class DishUpdateRequest {
     private String description;
     private Double price;
+    private Boolean active;
 }

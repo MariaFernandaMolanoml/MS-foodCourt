@@ -54,12 +54,11 @@ public class DishRestController {
             @PathVariable Long id,
             @RequestBody Map<String, Object> updates) {
 
-        // Solo se permiten estos
-        Set<String> allowed = Set.of("description", "price");
+        Set<String> allowed = Set.of("description", "price","active");
 
         for (String key : updates.keySet()) {
             if (!allowed.contains(key)) {
-                throw new DishUpdateNotAllowedException("Solo se puede modificar precio y descripción.");
+                throw new DishUpdateNotAllowedException("Only price, description and asset can be modified.");
             }
         }
 
@@ -69,6 +68,9 @@ public class DishRestController {
         }
         if (updates.containsKey("price")) {
             dto.setPrice(Double.valueOf(updates.get("price").toString()));
+        }
+        if (updates.containsKey("active")) {
+            dto.setActive(Boolean.valueOf(updates.get("active").toString()));
         }
 
         dishHandler.updateDish(id, dto);
