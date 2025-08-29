@@ -6,6 +6,8 @@ import com.example.msFoodCourt.domain.model.Dish;
 import com.example.msFoodCourt.domain.model.DishUpdate;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
 import com.example.msFoodCourt.domain.spi.IRestaurantPersistencePort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,11 +64,10 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void updateDish(DishUpdate dishUpdate, String documentFromToken) {
-        // Validación: debe enviar al menos price, description o active
         if (dishUpdate.getPrice() == null
                 && dishUpdate.getDescription() == null
                 && dishUpdate.getActive() == null) {
-            throw new UpdateDishException(); // puedes personalizar el mensaje
+            throw new UpdateDishException();
         }
 
         if (!dishPersistencePort.existById(dishUpdate.getId())) {
@@ -120,8 +121,12 @@ public class DishUseCase implements IDishServicePort {
         if (dish.getRestaurantId() == null) {
             throw new DishRestaurantNotFoundException();
         }
-        if (dish.getCategoryId() == null) {
+        if (dish.getCategory() == null) {
             throw new DishCategoryNotFoundException();
         }
+    }
+    @Override
+    public Page<Dish> findAll(Pageable pageable) {
+        return dishPersistencePort.findAll(pageable);
     }
 }

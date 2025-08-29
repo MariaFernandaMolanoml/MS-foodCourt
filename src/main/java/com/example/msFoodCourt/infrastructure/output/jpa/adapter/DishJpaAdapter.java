@@ -2,9 +2,13 @@ package com.example.msFoodCourt.infrastructure.output.jpa.adapter;
 
 import com.example.msFoodCourt.domain.model.Dish;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
+import com.example.msFoodCourt.infrastructure.output.jpa.entity.DishEntity;
 import com.example.msFoodCourt.infrastructure.output.jpa.mapper.IDishEntityMapper;
 import com.example.msFoodCourt.infrastructure.output.jpa.repository.IDishRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -37,6 +41,7 @@ public class DishJpaAdapter implements IDishPersistencePort {
     public void updateDish(Dish dish) {
         dishRepository.save(dishEntityMapper.toEntity(dish));
     }
+
     @Override
     public boolean existById(Long id) {
         return dishRepository.existsById(id);
@@ -45,5 +50,19 @@ public class DishJpaAdapter implements IDishPersistencePort {
     @Override
     public void deleteDish(Long id) {
         dishRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Dish> findByCategory(Long categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return dishRepository.findByCategoryId(categoryId, pageable)
+                .map(dishEntityMapper::toDish)
+                .getContent();
+    }
+
+    @Override
+    public Page<Dish> findAll(Pageable pageable) {
+        return dishRepository.findAll(pageable)
+                .map(dishEntityMapper::toDish);
     }
 }

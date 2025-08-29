@@ -34,7 +34,7 @@ class DishUseCaseTest {
         dish.setDescription("Delicious pizza");
         dish.setPrice(20.0);
         dish.setRestaurantId(1L);
-        dish.setCategoryId(1L);
+        dish.setCategory(1L);
         dish.setActive(true);
     }
 

@@ -1,6 +1,8 @@
 package com.example.msFoodCourt.domain.spi;
 
 import com.example.msFoodCourt.domain.model.Dish;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -11,4 +13,6 @@ public interface IDishPersistencePort {
     void updateDish(Dish dish);
     void deleteDish(Long id);
     boolean existById(Long id);
+    List<Dish> findByCategory(Long categoryId, int page, int size);
+    Page<Dish> findAll(Pageable pageable);
 }

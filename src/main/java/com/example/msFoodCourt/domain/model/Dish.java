@@ -16,6 +16,6 @@ public class Dish {
     private Double price;
     private String urlPhoto;
     private Long restaurantId;
-    private Long categoryId;
+    private Category category;
     private Boolean active;
 }

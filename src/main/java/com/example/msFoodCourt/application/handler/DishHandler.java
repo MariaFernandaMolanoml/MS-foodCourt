@@ -1,8 +1,10 @@
 package com.example.msFoodCourt.application.handler;
 
+import com.example.msFoodCourt.application.dto.DishListDto;
 import com.example.msFoodCourt.application.dto.DishRequest;
 import com.example.msFoodCourt.application.dto.DishResponse;
 import com.example.msFoodCourt.application.dto.DishUpdateRequest;
+import com.example.msFoodCourt.application.mapper.DishListMapper;
 import com.example.msFoodCourt.application.mapper.DishRequestMapper;
 import com.example.msFoodCourt.application.mapper.DishResponseMapper;
 import com.example.msFoodCourt.domain.api.IDishServicePort;
@@ -11,11 +13,15 @@ import com.example.msFoodCourt.domain.model.DishUpdate;
 import com.example.msFoodCourt.domain.utils.constant.Constants;
 import com.example.msFoodCourt.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,7 @@ public class DishHandler implements IDishHandler {
     private final IDishServicePort dishServicePort;
     private final DishRequestMapper dishRequestMapper;
     private final DishResponseMapper dishResponseMapper;
+    private final DishListMapper dishListMapper;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -87,6 +94,18 @@ public class DishHandler implements IDishHandler {
         String documentFromToken = jwtUtil.getDocument(token);
 
         dishServicePort.updateDish(dishUpdate, documentFromToken);
+    }
+    @Override
+    public Page<DishListDto> listDishes(int page, int size) {
+        var pageable = PageRequest.of(page, size);
+        var dishes = dishServicePort.findAll(pageable);
+
+        var dtoList = dishes.getContent()
+                .stream()
+                .map(dishListMapper::toDto)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, dishes.getTotalElements());
     }
 }
 

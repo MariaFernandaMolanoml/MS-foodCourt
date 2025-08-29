@@ -1,6 +1,7 @@
 package com.example.msFoodCourt.application.mapper;
 
 import com.example.msFoodCourt.application.dto.DishRequest;
+import com.example.msFoodCourt.domain.model.Category;
 import com.example.msFoodCourt.domain.model.Dish;
 import com.example.msFoodCourt.domain.utils.CategoryResolver;
 import org.mapstruct.Mapper;
@@ -12,11 +13,20 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface DishRequestMapper {
 
-    @Mapping(target = "categoryId", expression = "java(resolveCategoryId(dishRequest.getCategoryName()))")
+    @Mapping(target = "category", expression = "java(resolveCategory(dishRequest.getCategoryName()))")
     Dish toDish(DishRequest dishRequest);
 
-    default Long resolveCategoryId(String categoryName) {
+    default Category resolveCategory(String categoryName) {
         if (categoryName == null) return null;
-        return CategoryResolver.getCategoryId(categoryName);
+
+        Long categoryId = CategoryResolver.getCategoryId(categoryName);
+        if (categoryId == null) {
+            return null;
+        }
+
+        Category category = new Category();
+        category.setId(categoryId);
+        category.setName(categoryName);
+        return category;
     }
 }

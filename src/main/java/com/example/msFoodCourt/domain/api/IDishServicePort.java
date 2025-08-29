@@ -3,6 +3,8 @@ package com.example.msFoodCourt.domain.api;
 import com.example.msFoodCourt.application.dto.DishRequest;
 import com.example.msFoodCourt.domain.model.Dish;
 import com.example.msFoodCourt.domain.model.DishUpdate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,4 +17,5 @@ public interface IDishServicePort {
     void updateDish(DishUpdate dishUpdate, String documentFromToken);
     List<Dish> getDishesByRestaurant(Long restaurantId);
     void deleteDish(Long id);
+    Page<Dish> findAll(Pageable pageable);
 }

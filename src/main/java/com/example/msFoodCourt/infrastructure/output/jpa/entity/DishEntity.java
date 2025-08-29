@@ -1,5 +1,6 @@
 package com.example.msFoodCourt.infrastructure.output.jpa.entity;
 
+import com.example.msFoodCourt.domain.model.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,8 @@ public class DishEntity {
     private Double price;
     private String urlPhoto;
     private Long restaurantId;
-    private Long categoryId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
     private Boolean active;
 }
