@@ -9,7 +9,7 @@ public class Constants {
     public static final String ROLE_ADMIN = "ADMIN";
     public static final String ROLE_OWNER = "PROPIETARIO";
     public static final String ROLE_EMPLOYEE = "EMPLEADO";
-    public static final String ROLE_CLIENT = "CLIENTE";
+    public static final String ROLE_CUSTOMER = "CLIENTE";
 
     //JWT
     public  static  final String DOCUMENT = "document";

@@ -1,6 +1,6 @@
 package com.example.msFoodCourt.infrastructure.configuration;
 
-import com.example.msFoodCourt.domain.api.IDishServicePort;
+import com.example.msFoodCourt.domain.api.IFoodCourtServicePort;
 import com.example.msFoodCourt.domain.api.IRestaurantEmployeeServicePort;
 import com.example.msFoodCourt.domain.api.IRestaurantServicePort;
 import com.example.msFoodCourt.domain.spi.IDishPersistencePort;
@@ -8,6 +8,7 @@ import com.example.msFoodCourt.domain.spi.IRestaurantEmployeePersistencePort;
 import com.example.msFoodCourt.domain.spi.IRestaurantPersistencePort;
 import com.example.msFoodCourt.domain.spi.IUserPersistencePort;
 import com.example.msFoodCourt.domain.usecase.DishUseCase;
+import com.example.msFoodCourt.domain.usecase.FoodCourtUseCase;
 import com.example.msFoodCourt.domain.usecase.RestaurantEmployeeUseCase;
 import com.example.msFoodCourt.domain.usecase.RestaurantUseCase;
 import com.example.msFoodCourt.infrastructure.output.jpa.adapter.RestaurantEmployeeJpaAdapter;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BeanConfiguration {
     private final IRestaurantEmployeeRepository restaurantEmployeeRepository;
+    private final IDishPersistencePort dishPersistencePort;
 
     @Bean
     public IRestaurantPersistencePort restaurantPersistencePort(
@@ -43,7 +45,6 @@ public class BeanConfiguration {
     public IRestaurantServicePort restaurantServicePort(IRestaurantPersistencePort persistencePort, IUserPersistencePort userPersistencePort) {
         return new RestaurantUseCase(persistencePort,userPersistencePort);
     }
-    private final IDishPersistencePort dishPersistencePort;
 
     public BeanConfiguration(IDishPersistencePort dishPersistencePort, IRestaurantEmployeeRepository restaurantEmployeeRepository) {
         this.dishPersistencePort = dishPersistencePort;
@@ -70,5 +71,9 @@ public class BeanConfiguration {
     public DishUseCase dishUseCase(IDishPersistencePort dishPersistencePort,
                                    IRestaurantPersistencePort restaurantPersistencePort) {
         return new DishUseCase(dishPersistencePort, restaurantPersistencePort);
+    }
+    @Bean
+    public IFoodCourtServicePort foodCourtServicePort(IRestaurantPersistencePort restaurantPersistencePort) {
+        return new FoodCourtUseCase(restaurantPersistencePort);
     }
 }
