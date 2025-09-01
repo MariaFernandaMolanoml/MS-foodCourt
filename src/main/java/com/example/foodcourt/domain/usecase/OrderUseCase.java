@@ -90,5 +90,7 @@ public class OrderUseCase implements IOrderServicePort {
         restaurantPersistencePort.findById(restaurantId);
     }
 
-
+    public List<Order> getOrdersByRestaurantAndStatus(String restaurantNit, List<String> statuses, int page, int size) {
+        return orderPersistencePort.getOrdersByRestaurantAndStatus(restaurantNit, statuses, page, size);
+    }
 }

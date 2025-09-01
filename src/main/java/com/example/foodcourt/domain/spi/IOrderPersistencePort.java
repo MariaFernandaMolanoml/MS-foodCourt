@@ -14,4 +14,5 @@ public interface IOrderPersistencePort {
     Order updateOrder(Order order);
     boolean hasPendingOrders(String clientDocument);
     List<Order> getOrdersByClient(String clientDocument);
+    List<Order> getOrdersByRestaurantAndStatus(String restaurantNit, List<String> statuses, int page, int size);
 }

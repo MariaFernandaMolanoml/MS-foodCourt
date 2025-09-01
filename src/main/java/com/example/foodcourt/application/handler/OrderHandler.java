@@ -2,6 +2,7 @@ package com.example.foodcourt.application.handler;
 
 import com.example.foodcourt.application.dto.OrderCreateRequest;
 import com.example.foodcourt.application.dto.OrderResponse;
+import com.example.foodcourt.application.dto.PagedOrderResponse;
 import com.example.foodcourt.application.mapper.OrderMapper;
 import com.example.foodcourt.domain.api.IOrderServicePort;
 import com.example.foodcourt.domain.model.Order;
@@ -55,4 +56,18 @@ public class OrderHandler implements IOrderHandler {
     public void deleteOrder(Long id) {
         orderServicePort.deleteOrder(id);
     }
+
+    public PagedOrderResponse getOrdersByStatus(String restaurantNit, List<String> statuses, int page, int size) {
+        List<Order> orders = orderServicePort.getOrdersByRestaurantAndStatus(restaurantNit, statuses, page, size);
+        List<OrderResponse> content = orderMapper.toResponseList(orders);
+
+        PagedOrderResponse response = new PagedOrderResponse();
+        response.setContent(content);
+        response.setPage(page);
+        response.setSize(size);
+        response.setTotalElements(content.size());
+        response.setTotalPages((int) Math.ceil((double) content.size() / size));
+        return response;
+    }
+
 }

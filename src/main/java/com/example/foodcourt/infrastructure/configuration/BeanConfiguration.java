@@ -34,6 +34,7 @@ import com.example.foodcourt.infrastructure.output.jpa.repository.ICategoryRepos
 import com.example.foodcourt.infrastructure.output.jpa.repository.IDishRepository;
 import com.example.foodcourt.infrastructure.output.jpa.repository.IOrderRepository;
 import com.example.foodcourt.infrastructure.output.jpa.repository.IRestaurantEmployeeRepository;
+import com.example.foodcourt.infrastructure.output.jpa.repository.IRestaurantOrderRepository;
 import com.example.foodcourt.infrastructure.output.jpa.repository.IRestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -53,6 +54,7 @@ public class BeanConfiguration {
     private final IRestaurantEmployeeRepository restaurantEmployeeRepository;
     private final IRestaurantRepository restaurantRepository;
     private final RestaurantEntityMapper restaurantEntityMapper;
+    private final IRestaurantOrderRepository restaurantOrderRepository;
 
     @Bean
     public IUserPersistencePort userPersistencePort() {
@@ -71,7 +73,7 @@ public class BeanConfiguration {
 
     @Bean
     public IOrderPersistencePort orderPersistencePort(){
-        return new OrderJpaAdapter(orderRepository, orderEntityMapper);
+        return new OrderJpaAdapter(orderRepository, orderEntityMapper,restaurantRepository, restaurantOrderRepository);
     }
 
     @Bean

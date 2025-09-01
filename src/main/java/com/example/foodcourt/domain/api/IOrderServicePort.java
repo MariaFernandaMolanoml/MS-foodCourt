@@ -13,4 +13,5 @@ public interface IOrderServicePort {
     Order getOrderById(Long id);
     Order updateOrder(Order order);
     void deleteOrder(Long id);
+    List<Order> getOrdersByRestaurantAndStatus(String restaurantNit, List<String> statuses, int page, int size);
 }

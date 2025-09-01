@@ -18,4 +18,10 @@ public class RestaurantEmployeeJpaAdapter implements IRestaurantEmployeePersiste
         entity.setEmployeeDocument(restaurantEmployee.getEmployeeDocument());
         repository.save(entity);
     }
+    @Override
+    public String findRestaurantNitByEmployeeDocument(String employeeDocument) {
+        return repository.findByEmployeeDocument(employeeDocument)
+                .map(RestaurantEmployeeEntity::getRestaurantNit)
+                .orElseThrow(() -> new RuntimeException("No restaurant found for employee document " + employeeDocument));
+    }
 }

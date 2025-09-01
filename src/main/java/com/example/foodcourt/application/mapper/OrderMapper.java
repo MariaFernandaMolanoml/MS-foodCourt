@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring",
         uses = RestaurantOrderMapper.class,
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -18,4 +20,5 @@ public interface OrderMapper {
 
     @Mapping(target = "restaurants", source = "restaurantOrders")
     OrderResponse toResponse(Order model);
+    List<OrderResponse> toResponseList(List<Order> models);
 }

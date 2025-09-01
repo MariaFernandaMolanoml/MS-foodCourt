@@ -35,6 +35,10 @@ public class RestaurantEmployeeUseCase implements IRestaurantEmployeeServicePort
         validateEmployeeDocument(employee);
         restaurantEmployeePersistencePort.saveRestaurantEmployee(restaurantEmployee);
     }
+    @Override
+    public String findRestaurantNitByEmployeeDocument(String employeeDocument) {
+        return restaurantEmployeePersistencePort.findRestaurantNitByEmployeeDocument(employeeDocument);
+    }
 
     private void validateEmployeeDocument(User user) {
         if (user == null) {

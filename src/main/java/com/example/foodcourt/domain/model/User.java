@@ -15,5 +15,4 @@ public class User {
     private String document;
     private String phone;
     private String role;
-
 }
